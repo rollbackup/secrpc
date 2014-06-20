@@ -8,14 +8,18 @@ import (
 	"net"
 )
 
-func SecureDial(network, addr, caFile string) (net.Conn, error) {
+func SecureDialWithCert(network, addr, caFile string) (net.Conn, error) {
 	caPem, err := ioutil.ReadFile(caFile)
 	if err != nil {
 		return nil, err
 	}
 
+	return SecureDial(network, addr, caPem)
+}
+
+func SecureDial(network, addr string, cert []byte) (net.Conn, error) {
 	rootCAs := x509.NewCertPool()
-	if !rootCAs.AppendCertsFromPEM(caPem) {
+	if !rootCAs.AppendCertsFromPEM(cert) {
 		return nil, errors.New("unable to append cert from PEM")
 	}
 

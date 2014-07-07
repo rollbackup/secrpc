@@ -19,7 +19,15 @@ func NewSecureServer(addr, certFile, keyFile string) (*SecureServer, error) {
 	}
 
 	s := &SecureServer{rpcServ: rpc.NewServer()}
-	s.conn, err = tls.Listen("tcp", addr, &tls.Config{Certificates: []tls.Certificate{cert}})
+	s.conn, err = tls.Listen("tcp", addr, &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		},
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
+	})
 	if err != nil {
 		return nil, err
 	}
